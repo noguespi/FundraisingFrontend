@@ -21,7 +21,8 @@
 {% elseif donation.paymentType == 'PPL' or donation.paymentType == 'MCP' %}
 {$ mail_content('donation_confirmation/paymenttype_external', {
     'formatted_amount': formattedAmount,
-    'payment_provider': donation.paymentType|trans({}, 'paymentTypes')
+    'payment_provider': donation.paymentType|trans({}, 'paymentTypes'),
+	'donation_identifier': donation.id
 }) $}
 {% if donation.interval > 0 %}
 {$ 'recurringDonation'|transchoice( donation.interval, { '%interval%': donation.interval } ) $}
@@ -30,20 +31,27 @@
 {% elseif donation.paymentType == 'UEB' %}
 {$ mail_content('donation_confirmation/paymenttype_banktransfer', {
     'formatted_amount': formattedAmount,
-    'bank_transfer_code': donation.bankTransferCode
+    'bank_transfer_code': donation.bankTransferCode,
+    'donation_identifier': donation.id,
+    'donation_interval': donation.interval,
+    'payment_interval_phrase': paymentIntervalInMonths|trans( {}, 'paymentIntervals' )
 }) $}
 
 {% elseif donation.paymentType == 'SUB' %}
 {$ mail_content('donation_confirmation/paymenttype_sofort', {
 	'formatted_amount': formattedAmount,
 	'payment_provider': donation.paymentType|trans({}, 'paymentTypes'),
-	'payment_status': donation.status|trans({}, 'paymentStatus')
+	'payment_status': donation.status|trans({}, 'paymentStatus'),
+	'donation_identifier': donation.id
 }) $}
 
 {% endif %}
 {% endif %}
 {$ mail_content('donation_confirmation/support', {
-    'donation_id': donation.id
+	'donation_identifier': donation.id,
+	'donation_receipt': donation.id,
+	'donation_interval': donation.interval,
+	'current_weekday': current_weekday
 }) $}
 
 {% if donation.paymentType == 'UEB' %}

@@ -1032,12 +1032,19 @@ class FunFunFactory implements ServiceProviderInterface {
 					$this->getMailerTwig(),
 					'Donation_Confirmation.txt.twig',
 					[
-						'greeting_generator' => $this->getGreetingGenerator()
+						'greeting_generator' => $this->getGreetingGenerator(),
+						'current_weekday' => $this->getCurrentWeekDay()
 					]
 				),
 				'mail_subject_confirm_donation'
 			)
 		);
+	}
+
+	private function getCurrentWeekDay(): string {
+		return ( new \IntlDateFormatter(
+			'de_DE', \IntlDateFormatter::FULL, \IntlDateFormatter::FULL, null, null, 'EEEE'
+		) )->format( time() );
 	}
 
 	public function newPayPalUrlGeneratorForDonations(): PayPalUrlGenerator {
