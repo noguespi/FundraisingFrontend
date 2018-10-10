@@ -23,35 +23,21 @@
 			changeIban: 'Function',
 			changeBic: 'Function',
 			changeBankDataValidity: 'Function',
-			validateBankData: 'Function'
+			validateBankData: 'Function',
+			iban: 'String',
+			bic: 'String',
+			isValid: 'Boolean'
 		},
 		data: function() {
-			let iban = '',
-				bic = '',
-				validIBAN = 'DE00123456789012345678',
-				validBIC = 'DEUTDEBBXXX',
-				validKontonummer = validIBAN.substr(12, 10),
-				validBankleitzahl = validIBAN.substr(4, 8);
-
 			//TODO Translate these strings
 			return {
 				bankName: '',
 				errorText: '',
 				hasError: false,
-
-				iban: iban,
-				bic: bic,
-				isValid: true,
 				isValidBic: true,
 				bicFilled: false,
 				focusOut: false,
 				bicFocusOut: false,
-				validBankData: {
-					iban: validIBAN,
-					bic: validBIC,
-					konto: validKontonummer,
-					bankl: validBankleitzahl
-				}
 			}
 		},
 		methods: {
@@ -60,22 +46,20 @@
 				this.validate();
 			},
 			handleBicChange( evt ) {
-				//this.changeBic( evt.target.value );
+				this.changeBic( evt.target.value );
 				this.validate();
 			},
-
 			validate() {
-				if( this.iban === '' || this.bic === '' ) {
+				if( this.iban === '' || (this.bic === '' && !this.looksLikeIBAN() ) ) {
 					return this.changeBankDataValidity( { status: 'INCOMPLETE', iban: this.iban, bic: this.bic } ) ;
 				}
-				return this.validateBankData( this.iban, this.bic )
+				return this.validateBankData( this.iban, this.bic, this.looksLikeIBAN() )
 					.then( this.changeBankDataValidity )
 					.catch( () => {
 						this.errorText = 'An error has occurred. Please reload the page and try again.'; // TODO translate
 						this.hasError = true;
 					} );
 			},
-
 			isFieldEmpty: function () {
 				return this.iban === '';
 			},
@@ -85,16 +69,8 @@
 			looksLikeIBAN: function () {
 				return /^[A-Z]+([0-9]+)?$/.test( this.iban );
 			},
-			isValidIBAN: function () {
-				//TODO remove this function probably
-				return ( this.iban === this.validBankData.iban ) || ( this.iban === '' );
-			},
 			looksLikeBankAccountNumber: function () {
 				return /^\d+$/.test( this.iban );
-			},
-			isValidKontonummmer: function () {
-				//TODO remove this function probably
-				return ( this.iban === this.validBankData.konto ) || ( this.iban === '' );
 			},
 			fillBIC: function () {
 				if ( this.isValid && !this.isFieldEmpty() && this.looksLikeIBAN() ) {
@@ -102,10 +78,6 @@
 				}
 				this.focusOut = true;
 			},
-			validBic: function () {
-				this.isValidBic = this.bic === this.validBankData.bankl && this.isValidKontonummmer();
-				this.bicFocusOut = true;
-			}
 		},
 		computed: {
 			labels() {
@@ -143,7 +115,7 @@
 					'field-grp': true,
 					'field-iba': true,
 					'field-labeled': true,
-					'invalid': ( !this.isValid && this.focusOut ) || ( !this.isValidBic && !this.isValidIBAN() && this.bicFocusOut && this.focusOut ),
+					'invalid': ( !this.isValid && this.focusOut ) || ( !this.isValidBic && this.bicFocusOut && this.focusOut ),
 					'valid': this.isValid && !this.isFieldEmpty() && ( ( this.looksLikeIBAN() && this.focusOut ) || ( this.isValidBic && this.focusOut && !this.isBicEmpty() ) )
 				}
 			}
